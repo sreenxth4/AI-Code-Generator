@@ -17,7 +17,7 @@ def generate_code():
     data = request.json
     user_prompt = data.get("prompt")
 
-    response = openai.ChatCompletion.create(
+    response = openai.client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an AI that writes clean and efficient code."},
