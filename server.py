@@ -2,13 +2,12 @@ import openai
 from flask import Flask, request, jsonify
 import os
 
-# Use environment variables for sensitive information like API keys
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Make sure to set this in your environment
+# Ensure the OpenAI API key is set
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Route for the root URL
 @app.route('/')
 def home():
     return "Welcome to the Code Generator API!"
@@ -18,17 +17,16 @@ def generate_code():
     data = request.json
     user_prompt = data.get("prompt")
 
-    # Call the OpenAI API to generate code based on the prompt
-    response = openai.Completion.create(
-        model="gpt-4",  # Specify the GPT-4 model
-        prompt=user_prompt,  # The prompt provided by the user
-        max_tokens=500,  # You can adjust this value based on the response length needed
-        temperature=0.7  # You can tweak the temperature to adjust creativity
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are an AI that writes clean and efficient code."},
+            {"role": "user", "content": user_prompt}
+        ]
     )
 
-    # Return the generated code as a JSON response
-    return jsonify({"generated_code": response.choices[0].text.strip()})
+    return jsonify(response['choices'][0]['message']['content'])
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))  # Fallback to 5000 if PORT is not set
+    port = int(os.environ.get("PORT", 10000))  # Bind to Render's port
     app.run(host="0.0.0.0", port=port)
